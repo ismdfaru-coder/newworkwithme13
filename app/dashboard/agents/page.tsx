@@ -112,7 +112,8 @@ export default function AgentsPage() {
   }, [messages])
 
   // Get icon for file type
-  const getFileIcon = (mimeType: string) => {
+  const getFileIcon = (mimeType?: string) => {
+    if (!mimeType) return <File className="h-4 w-4 text-gray-500" />
     if (mimeType.includes('pdf')) return <FileText className="h-4 w-4 text-red-500" />
     if (mimeType.includes('image')) return <FileImage className="h-4 w-4 text-blue-500" />
     if (mimeType.includes('spreadsheet') || mimeType.includes('excel') || mimeType.includes('csv')) return <FileSpreadsheet className="h-4 w-4 text-green-500" />
@@ -681,7 +682,7 @@ export default function AgentsPage() {
                           {file.fileName}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {file.mimeType.split('/').pop()?.toUpperCase()}
+                          {file.mimeType?.split('/').pop()?.toUpperCase() || 'FILE'}
                         </div>
                       </div>
                       <Download className="h-4 w-4 text-muted-foreground group-hover:text-purple-500 transition-colors" />
