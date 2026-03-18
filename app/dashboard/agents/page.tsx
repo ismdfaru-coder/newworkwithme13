@@ -3,7 +3,7 @@
 // WorkwithMe AI Agent Tab
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ArrowUp, Loader2, Copy, Check, RotateCcw, FileText, Code, Sparkles, Bot, X, Download, File, FileImage, FileSpreadsheet, PanelRightOpen, PanelRightClose, MessageSquare, Monitor, FileSpreadsheetIcon, Presentation, Search, GitBranch } from "lucide-react"
+import { ArrowUp, Loader2, Copy, Check, RotateCcw, FileText, Code, Sparkles, Bot, X, Download, File, FileImage, FileSpreadsheet, PanelRightOpen, PanelRightClose, MessageSquare, Monitor, FileSpreadsheetIcon, Presentation } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DocViewer, DocWizard, type DocData } from "@/components/doc-viewer"
 import { SlidesViewer, SlidesWizard, type SlidesData } from "@/components/slides-viewer"
@@ -36,14 +36,12 @@ export default function AgentsPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedTaskType, setSelectedTaskType] = useState<string | null>(null)
 
-  // Task type options
+  // Task type options with placeholder text
   const taskTypes = [
-    { id: "websites", label: "Websites", icon: Monitor },
-    { id: "docs", label: "Docs", icon: FileText },
-    { id: "slides", label: "Slides", icon: Presentation },
-    { id: "sheets", label: "Sheets", icon: FileSpreadsheetIcon },
-    { id: "research", label: "Deep Research", icon: Search },
-    { id: "swarm", label: "Agent Swarm", icon: GitBranch, badge: "Beta" },
+    { id: "websites", label: "Websites", icon: Monitor, placeholder: "Create a website for..." },
+    { id: "docs", label: "Docs", icon: FileText, placeholder: "Write a document about..." },
+    { id: "slides", label: "Slides", icon: Presentation, placeholder: "Create a presentation on..." },
+    { id: "sheets", label: "Sheets", icon: FileSpreadsheetIcon, placeholder: "Build a spreadsheet for..." },
   ]
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [docWizardOpen, setDocWizardOpen] = useState(false)
@@ -410,10 +408,10 @@ export default function AgentsPage() {
                   <textarea
                     ref={textareaRef}
                     value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Ask me anything..."
-                    className="max-h-32 min-h-[48px] flex-1 resize-none bg-transparent text-base outline-none placeholder:text-muted-foreground"
+  onChange={(e) => setInputValue(e.target.value)}
+  onKeyDown={handleKeyDown}
+  placeholder={selectedTaskType ? taskTypes.find(t => t.id === selectedTaskType)?.placeholder : "Ask me anything..."}
+  className="max-h-32 min-h-[48px] flex-1 resize-none bg-transparent text-base outline-none placeholder:text-muted-foreground"
                     rows={2}
                   />
                   <Button
