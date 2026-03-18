@@ -1,5 +1,5 @@
 // app/api/agent/route.ts
-// Manus API implementation with full output parsing and file downloads
+// WorkwithMe AI Agent API implementation with full output parsing and file downloads
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -158,8 +158,8 @@ export async function GET(req: Request) {
         controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
 
       try {
-        // ── 1. Create Manus task ─────────────────────────────
-        send("step", { type: "info", desc: "Creating Manus AI task...", icon: "thinking" });
+        // ── 1. Create task ─────────────────────────────
+        send("step", { type: "info", desc: "Creating AI task...", icon: "thinking" });
 
         const taskResponse = await createTask(query);
         
@@ -203,7 +203,7 @@ export async function GET(req: Request) {
             // Task might not be ready yet, continue polling
             pollCount++;
             if (pollCount % 10 === 0) {
-              send("step", { type: "info", desc: `Waiting for Manus AI... (${pollCount * 2}s)`, icon: "waiting" });
+              send("step", { type: "info", desc: `Waiting for AI... (${pollCount * 2}s)`, icon: "waiting" });
             }
             continue;
           }
@@ -212,7 +212,7 @@ export async function GET(req: Request) {
           if (currentTask.status !== lastStatus) {
             const statusMessages: Record<string, { desc: string; icon: string }> = {
               "pending": { desc: "Task queued, waiting to start...", icon: "waiting" },
-              "running": { desc: "Manus AI is working on your task...", icon: "processing" },
+              "running": { desc: "AI is working on your task...", icon: "processing" },
               "completed": { desc: "Task completed successfully!", icon: "check" },
               "failed": { desc: currentTask.error || "Task failed", icon: "error" },
             };
@@ -327,10 +327,10 @@ export async function GET(req: Request) {
         }
 
         if (pollCount >= maxPolls) {
-          send("step", { type: "error", desc: "Polling timeout reached. Task may still be running - check Manus dashboard.", icon: "error" });
+          send("step", { type: "error", desc: "Polling timeout reached. Task may still be running.", icon: "error" });
         }
 
-        send("done", { message: "Manus AI task finished." });
+        send("done", { message: "AI task finished." });
 
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : String(err);

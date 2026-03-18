@@ -49,6 +49,10 @@ export default function AgentsPage() {
   const [taskResults, setTaskResults] = useState<string[]>([])
   const [taskCompleted, setTaskCompleted] = useState(false)
   
+  // Real-time steps from API
+  const [taskSteps, setTaskSteps] = useState<Array<{desc: string, type: string, icon: string}>>([])
+  const stepsEndRef = useRef<HTMLDivElement>(null)
+  
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -59,6 +63,10 @@ export default function AgentsPage() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    stepsEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [taskSteps])
 
   // Get icon for file type
   const getFileIcon = (mimeType?: string) => {
@@ -96,12 +104,19 @@ export default function AgentsPage() {
     setTaskFiles([])
     setTaskResults([])
     setTaskCompleted(false)
+    setTaskSteps([])
 
     try {
       const eventSource = new EventSource(`/api/agent?query=${encodeURIComponent(userMessage.content)}`)
       
       let rawOutput = ""
       let summaryText = ""
+
+      // Listen for step updates (real-time progress)
+      eventSource.addEventListener("step", (e) => {
+        const data = JSON.parse(e.data)
+        setTaskSteps(prev => [...prev, { desc: data.desc, type: data.type, icon: data.icon }])
+      })
 
       eventSource.addEventListener("result", (e) => {
         const data = JSON.parse(e.data)
@@ -435,11 +450,46 @@ export default function AgentsPage() {
                         ? "bg-primary text-primary-foreground" 
                         : "bg-muted"
                     )}>
-                      {/* Loading State */}
+                      {/* Loading State with Real-time Steps */}
                       {message.status === "processing" && !message.content && (
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          <span className="text-sm text-muted-foreground">Thinking...</span>
+                        <div className="space-y-2">
+                          {taskSteps.length === 0 ? (
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <span className="text-sm text-muted-foreground">Starting task...</span>
+                            </div>
+                          ) : (
+                            <div className="space-y-1.5 max-h-60 overflow-auto">
+                              {taskSteps.map((step, idx) => (
+                                <div 
+                                  key={idx} 
+                                  className={cn(
+                                    "flex items-start gap-2 text-sm",
+                                    step.type === "error" && "text-destructive",
+                                    step.type === "success" && "text-green-600",
+                                    step.type === "info" && "text-muted-foreground"
+                                  )}
+                                >
+                                  {step.icon === "processing" || step.icon === "waiting" ? (
+                                    <Loader2 className="h-3.5 w-3.5 mt-0.5 animate-spin shrink-0" />
+                                  ) : step.icon === "check" ? (
+                                    <Check className="h-3.5 w-3.5 mt-0.5 text-green-600 shrink-0" />
+                                  ) : step.icon === "error" ? (
+                                    <X className="h-3.5 w-3.5 mt-0.5 text-destructive shrink-0" />
+                                  ) : (
+                                    <Sparkles className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                                  )}
+                                  <span className="break-words">{step.desc}</span>
+                                </div>
+                              ))}
+                              <div ref={stepsEndRef} />
+                              {/* Still processing indicator */}
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground pt-1">
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                <span>Processing...</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                       
