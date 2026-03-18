@@ -3,7 +3,7 @@
 // WorkwithMe AI Agent Tab
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ArrowUp, Loader2, Copy, Check, RotateCcw, FileText, Code, Sparkles, Bot, X, Download, File, FileImage, FileSpreadsheet, PanelRightOpen, PanelRightClose, MessageSquare } from "lucide-react"
+import { ArrowUp, Loader2, Copy, Check, RotateCcw, FileText, Code, Sparkles, Bot, X, Download, File, FileImage, FileSpreadsheet, PanelRightOpen, PanelRightClose, MessageSquare, Monitor, FileSpreadsheetIcon, Presentation, Search, GitBranch } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DocViewer, DocWizard, type DocData } from "@/components/doc-viewer"
 import { SlidesViewer, SlidesWizard, type SlidesData } from "@/components/slides-viewer"
@@ -34,6 +34,17 @@ export default function AgentsPage() {
   const [inputValue, setInputValue] = useState("")
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [selectedTaskType, setSelectedTaskType] = useState<string | null>(null)
+
+  // Task type options
+  const taskTypes = [
+    { id: "websites", label: "Websites", icon: Monitor },
+    { id: "docs", label: "Docs", icon: FileText },
+    { id: "slides", label: "Slides", icon: Presentation },
+    { id: "sheets", label: "Sheets", icon: FileSpreadsheetIcon },
+    { id: "research", label: "Deep Research", icon: Search },
+    { id: "swarm", label: "Agent Swarm", icon: GitBranch, badge: "Beta" },
+  ]
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [docWizardOpen, setDocWizardOpen] = useState(false)
   const [newSlidesWizardOpen, setNewSlidesWizardOpen] = useState(false)
@@ -366,6 +377,33 @@ export default function AgentsPage() {
                 </p>
               </div>
 
+              {/* Task Type Buttons */}
+              <div className="mb-6 flex flex-wrap justify-center gap-2">
+                {taskTypes.map((type) => {
+                  const Icon = type.icon
+                  return (
+                    <button
+                      key={type.id}
+                      onClick={() => setSelectedTaskType(selectedTaskType === type.id ? null : type.id)}
+                      className={cn(
+                        "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                        selectedTaskType === type.id
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-card text-foreground hover:bg-muted"
+                      )}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {type.label}
+                      {type.badge && (
+                        <span className="rounded bg-orange-100 px-1.5 py-0.5 text-xs font-medium text-orange-600">
+                          {type.badge}
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+
               {/* Chat Input */}
               <div className="mb-6 rounded-2xl border border-border bg-card p-1 shadow-sm">
                 <div className="flex items-end gap-2 px-4 py-3">
@@ -411,21 +449,7 @@ export default function AgentsPage() {
                 </div>
               </div>
 
-              {/* Capabilities */}
-              <div className="mt-8 flex flex-wrap justify-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                  <Sparkles className="h-3 w-3" />
-                  Research
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                  <FileText className="h-3 w-3" />
-                  Writing
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                  <Code className="h-3 w-3" />
-                  Analysis
-                </span>
-              </div>
+
             </div>
           </div>
         ) : (
